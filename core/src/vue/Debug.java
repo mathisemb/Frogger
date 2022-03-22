@@ -27,13 +27,13 @@ public class Debug {
 	
 	public void afficherDebug() {
 		shapeRenderer.begin(ShapeType.Line);
-		/* Grille
+		// Grille
 		for(int i = 0; i < height; i++) {
 			for(int j = 0; j < width; j++) {
 				shapeRenderer.rect(j*unit, i*unit, unit, unit);
 			}
 		}
-		*/
+		
 		shapeRenderer.setColor(Color.GREEN);
 		for(GameElement elem : World.getInstance().getLesElements()) {
 			shapeRenderer.rect(elem.getX()*50, elem.getY()*50, elem.getWidth()*50, elem.getHeight()*50);

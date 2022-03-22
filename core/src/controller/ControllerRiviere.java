@@ -144,9 +144,9 @@ public class ControllerRiviere {
 		Random r = new Random();
 		int i = r.nextInt(3);
 		switch(i) {
-			case 0: return new Tronc(x, riviere.getY(), riviere.getHeight(), 1, riviere.getSpeed(), riviere.getDistance(), "tronc1");
-			case 1: return new Tronc(x, riviere.getY(), riviere.getHeight(), 2, riviere.getSpeed(), riviere.getDistance(), "tronc2");
-			default: return new Tronc(x, riviere.getY(), riviere.getHeight(), 3, riviere.getSpeed(), riviere.getDistance(), "tronc3");
+			case 0: return new Tronc(x, riviere.getY(), riviere.getHeight(), 3, riviere.getSpeed(), riviere.getDistance(), "tronc1");
+			case 1: return new Tronc(x, riviere.getY(), riviere.getHeight(), (float) 4.5, riviere.getSpeed(), riviere.getDistance(), "tronc2");
+			default: return new Tronc(x, riviere.getY(), riviere.getHeight(), 6, riviere.getSpeed(), riviere.getDistance(), "tronc3");
 		}
 	}	
 }

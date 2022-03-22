@@ -94,7 +94,7 @@
             "height" : 1,
             "width" : 9,
             "type" : "tortues",
-            "speed" : 3,
+            "speed" : -3,
             "distance" : 5
         },
         "2": {
@@ -123,7 +123,7 @@
             "type" : "troncs",
             "speed" : 3,
             "distance" : 5
-        }
+        },
         "5": {
         	"x" :0,
             "y": 11,

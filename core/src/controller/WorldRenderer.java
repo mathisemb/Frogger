@@ -13,6 +13,7 @@ import model.Mouche;
 import model.Riviere;
 import model.Route;
 import model.StaticGameElement;
+import model.Tortue;
 import model.Vehicule;
 import model.World;
 import vue.TextureFactory;
