@@ -24,6 +24,7 @@ public class TextureFactory {
 	private Texture tronc2;
 	private Texture tronc3;
 	private Texture mouche;
+	private Texture dead;
 	
 	private static TextureFactory instance;
 	
@@ -35,6 +36,8 @@ public class TextureFactory {
 		frogger4 = new Texture("frogger/f_05.png");
 		frogger5 = new Texture("frogger/f_06.png");
 		frogger6 = new Texture("frogger/f_07.png");
+		
+		dead = new Texture("items/i_03.png");
 
 		// Les véhicules
 		camion = new Texture("vehicle/veh_01.png");
@@ -71,6 +74,7 @@ public class TextureFactory {
 	    lesTextures.put("frogger4", frogger4);
 	    lesTextures.put("frogger5", frogger5);
 	    lesTextures.put("frogger6", frogger6);
+	    lesTextures.put("deadFrogger", dead);
 	    lesTextures.put("voitureJaune", voitureJaune);
 	    lesTextures.put("voitureBleue", voitureBleue);
 	    lesTextures.put("voitureVerte", voitureVerte);

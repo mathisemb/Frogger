@@ -83,7 +83,7 @@ public class World {
     }
     public void initFrogger(JsonValue config) {
         JsonValue Frogger = config.get("Frogger");
-        frog = new Frogger(Frogger.getFloat("x"),Frogger.getFloat("y"), Frogger.getFloat("height"), Frogger.getFloat("width"), Frogger.getFloat("pas"),"frogger");
+        this.frog = new Frogger(Frogger.getFloat("x"),Frogger.getFloat("y"), Frogger.getFloat("height"), Frogger.getFloat("width"), Frogger.getFloat("pas"),"frogger");
         lesElements.add(frog);
     }
     public void initFond(JsonValue config) {
@@ -98,7 +98,7 @@ public class World {
 	}
 	
 	public Frogger getFrog() {
-		return frog;
+		return this.frog;
 	}
 	public void setFrog(Frogger frog) {
 		this.frog = frog;

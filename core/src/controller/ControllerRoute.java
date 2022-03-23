@@ -20,7 +20,7 @@ public class ControllerRoute {
 			if (route.getLesVehicules().size == 0) {
 				route.getLesVehicules().add(getVehiculeAleatoire(route.getWidth()));
 			}
-			else {
+			else if (route.getLesVehicules().size<4) {
 				last = route.getLesVehicules().get(route.getLesVehicules().size - 1);
 				startPos = last.getX() + last.getWidth() + route.getDistance();
 				route.getLesVehicules().add(getVehiculeAleatoire(startPos));
@@ -36,7 +36,7 @@ public class ControllerRoute {
 			if (route.getLesVehicules().size == 0) {
 				route.getLesVehicules().add(getVehiculeAleatoire(-4));
 			}
-			else {
+			else if (route.getLesVehicules().size<4) {
 				last = route.getLesVehicules().get(route.getLesVehicules().size - 1);
 				nouveau = getVehiculeAleatoire(-4);
 				nouveau.setX(last.getX()-route.getDistance()-nouveau.getWidth());

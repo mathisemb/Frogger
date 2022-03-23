@@ -43,7 +43,7 @@ public class ControllerRiviere {
 					riviere.getLesElements().add(getTroncAleatoire(riviere.getWidth()));
 				}
 			}
-			else {
+			else if (riviere.getLesElements().size<4){
 				last = riviere.getLesElements().get(riviere.getLesElements().size - 1);
 				startPos = last.getX() + last.getWidth() + riviere.getDistance();
 				if (riviere.getState().equals("tortues")) { // ajouter 2 ou 3 tortues aux éléments
@@ -71,9 +71,10 @@ public class ControllerRiviere {
 			}
 
 			for(GameElementLineaire elem : riviere.getLesElements()) {
-				if (elem.getX() + elem.getWidth() <=riviere.getX())
+				if (elem.getX() + elem.getWidth() < riviere.getX())
 					riviere.getLesElements().removeValue(elem, true);
-				elem.setX(elem.getX()+delta*riviere.getSpeed());
+				else
+					elem.setX(elem.getX()+delta*riviere.getSpeed());
 			}
 		}
 		else { // on va de gauche à droite
@@ -101,7 +102,7 @@ public class ControllerRiviere {
 					riviere.getLesElements().add(getTroncAleatoire(-4));
 				}
 			}
-			else {
+			else if (riviere.getLesElements().size<4) {
 				if (riviere.getState().equals("tortues")) { // ajouter 2 ou 3 tortues aux éléments
 					last = riviere.getLesElements().get(riviere.getLesElements().size - 1);
 					
@@ -135,7 +136,8 @@ public class ControllerRiviere {
 			for(GameElementLineaire elem : riviere.getLesElements()) {
 				if (elem.getX() >= riviere.getWidth())
 					riviere.getLesElements().removeValue(elem, true);
-				elem.setX(elem.getX()+delta*riviere.getSpeed());
+				else
+					elem.setX(elem.getX()+delta*riviere.getSpeed());
 			}
 		}
 	}

@@ -26,7 +26,7 @@ public class WorldRenderer {
    private ArrayList<ControllerRoute> lesControllerRoute;
    private ArrayList<ControllerRiviere> lesControllerRiviere;
 
-	public WorldRenderer() {	
+	public WorldRenderer() {
 		WorldRenderer.world = World.getInstance();
 		WorldRenderer.controllerFrogger = new ControllerFrogger(world.getFrog());
 		for(GameElement elem:world.getLesElements()) {
