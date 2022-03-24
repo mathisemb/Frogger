@@ -30,12 +30,12 @@ public class TextureFactory {
 	
 	private TextureFactory() { // chargement des textures
 		fond = new Texture("Fond.png");
-		frogger1 = new Texture("frogger/f_02.png");
-		frogger2 = new Texture("frogger/f_03.png");
-		frogger3 = new Texture("frogger/f_04.png");
-		frogger4 = new Texture("frogger/f_05.png");
-		frogger5 = new Texture("frogger/f_06.png");
-		frogger6 = new Texture("frogger/f_07.png");
+		frogger1 = new Texture("frogger/f_01.png");
+		frogger2 = new Texture("frogger/f_02.png");
+		frogger3 = new Texture("frogger/f_03.png");
+		frogger4 = new Texture("frogger/f_04.png");
+		frogger5 = new Texture("frogger/f_05.png");
+		frogger6 = new Texture("frogger/f_06.png");
 		
 		dead = new Texture("items/i_03.png");
 
@@ -67,7 +67,7 @@ public class TextureFactory {
 		// Hashmap de class, texture pour éviter de faire des instanceof
 		lesTextures = new HashMap<>();
 	    lesTextures.put("fond", fond);
-	    lesTextures.put("frogger", frogger1);
+	    lesTextures.put("frogger", frogger6);
 	    lesTextures.put("frogger1", frogger1);
 	    lesTextures.put("frogger2", frogger2);
 	    lesTextures.put("frogger3", frogger3);
