@@ -28,7 +28,7 @@ public class WorldRenderer {
 
 	public WorldRenderer() {
 		WorldRenderer.world = World.getInstance();
-		WorldRenderer.controllerFrogger = new ControllerFrogger(world.getFrog());
+		WorldRenderer.controllerFrogger = new ControllerFrogger();
 		for(GameElement elem:world.getLesElements()) {
 			if (elem instanceof Mouche) {
 				WorldRenderer.controllerMouche = new ControllerMouche((Mouche)elem);
@@ -48,7 +48,7 @@ public class WorldRenderer {
 	public void render(SpriteBatch batch, float delta) {
 
 		// ----------------- MAJ DU MODELE EN FONCTION DES ACTIONS DU JOUEUR -----------------
-		controllerFrogger.majFrogger(delta);
+		controllerFrogger.majFrogger(delta, world.getFrog());
 		controllerMouche.majMouche(delta);
 		
 		// ------------------------------ AFFICHAGE SUR LE BATCH ------------------------------
