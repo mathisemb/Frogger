@@ -43,6 +43,11 @@ public abstract class DynamicGameElement extends GameElement {
 		return deplacement;
 	}
 
+	public void setDeplacement(float deplacement) {
+		this.deplacement = deplacement;
+	}
+
+	
 	
 	
 

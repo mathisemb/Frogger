@@ -83,7 +83,7 @@ public class World {
     }
     public void initFrogger(JsonValue config) {
         JsonValue Frogger = config.get("Frogger");
-        this.frog = new Frogger(Frogger.getFloat("x"),Frogger.getFloat("y"), Frogger.getFloat("height"), Frogger.getFloat("width"), Frogger.getFloat("pas"),"frogger");
+        this.frog = new Frogger(Frogger.getFloat("x"),Frogger.getFloat("y"), Frogger.getFloat("height"), Frogger.getFloat("width"), Frogger.getFloat("pas"),"frogger", Frogger.getInt("vie"), 0);
         lesElements.add(frog);
     }
     public void initFond(JsonValue config) {
@@ -91,6 +91,31 @@ public class World {
         lesElements.add(new Fond(Fond.getFloat("x"),Fond.getFloat("y"), Fond.getFloat("height"), Fond.getFloat("width")));
     }
     
+    public void frogInitPos() {
+    	JsonReader json = new JsonReader();
+        JsonValue config = json.parse(Gdx.files.internal("configuration.json"));
+        JsonValue Frogger = config.get("Frogger");
+        frog.setX(Frogger.getFloat("x"));
+        frog.setY(Frogger.getFloat("y"));
+        frog.setHeight(Frogger.getFloat("height"));
+        frog.setWidth(Frogger.getFloat("width"));
+        frog.setDeplacement(Frogger.getFloat("pas"));
+        frog.setState("frogger");
+        frog.setVie(frog.getVie()-1);
+    }
+    
+	public void createFroggerRefuge(Refuge refuge) {
+		lesElements.add(new Frogger(refuge.getX(), refuge.getY(), frog.getHeight(), frog.getWidth(), frog.getDeplacement(), "frogger", 0, 0));
+		refuge.setOccupied(true);
+	}
+    
+    
+    public int getVieBegin() {
+    	JsonReader json = new JsonReader();
+        JsonValue config = json.parse(Gdx.files.internal("configuration.json"));
+        JsonValue Frogger = config.get("Frogger");
+        return Frogger.getInt("vie");
+    }
     
 	// Getters
 	public ArrayList<GameElement> getLesElements() {

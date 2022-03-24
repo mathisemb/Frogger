@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Rectangle;
 
 import model.Frogger;
 import model.GameElementLineaire;
+import model.Refuge;
 import model.Riviere;
 import model.Route;
 import model.Tortue;
@@ -53,9 +54,9 @@ public class ControllerFrogger {
 		this.isMoving = false;
 		
 		// fixe
-		this.timeBetweenJump = (float)10;
+		this.timeBetweenJump = (float)0.4;
 		this.nbFrames = 6;
-		this.animLenght = (float)1;
+		this.animLenght = (float)0.2;
 		this.frameLenght = animLenght/nbFrames;
 		deltaPos = World.getInstance().getFrog().getDeplacement()/nbFrames;
 		
@@ -74,7 +75,7 @@ public class ControllerFrogger {
 		noye = false;
 
 		allowed = true;
-	}	     
+	}
 
 	public void majFrogger(float delta, Frogger frog) { // methode appelee dans WorldRenderer pour mettre a jour frogger
 		// on suppose que frogger n'est pas mort
@@ -124,6 +125,7 @@ public class ControllerFrogger {
 			allowed = true; // frogger ne bouge pas donc est autorise se deplacer ou il veut
 		}
 		
+		// ----------------- METHODE A : par un appui sur les flèches du clavier -----------------
 		if (Gdx.input.isKeyPressed(Keys.UP)) {
 			wantToJump("UP", frog, delta);
 		}
@@ -137,19 +139,37 @@ public class ControllerFrogger {
 			wantToJump("LEFT", frog, delta);
 		}
 		animationFrogger(frog, delta);
-
-
-	    if (ecrase || noye) frog.setState("deadFrogger");
 		
-		/*
-		if (!(Gdx.input.isTouched()) && 
-			(!Gdx.input.isKeyPressed(Keys.UP) && !Gdx.input.isKeyPressed(Keys.DOWN) &&
-			!Gdx.input.isKeyPressed(Keys.LEFT) && !Gdx.input.isKeyPressed(Keys.RIGHT))) {
-			isMoving = false;
-			animTime = 0;
+		for(Refuge refuge : World.getInstance().getLesRefuges()) {
+			if (World.getInstance().getFrog().getY()==refuge.getY()) {
+				
+				if ( World.getInstance().getFrog().getX() + (World.getInstance().getFrog().getWidth()/2) < refuge.getX() + refuge.getWidth() ) {
+					if ( World.getInstance().getFrog().getX() + (World.getInstance().getFrog().getWidth()/2) > refuge.getX()) {
+						System.out.print("ok");
+						World.getInstance().createFroggerRefuge(refuge);
+						World.getInstance().frogInitPos();
+					}
+				}
+				
+				/*
+				if (World.getInstance().getFrog().getRectangle().overlaps(refuge.getRectangle())) {
+					World.getInstance().createFroggerRefuge(refuge);
+					World.getInstance().frogInitPos();
+				}
+				*/
+			}
 		}
-		*/
-		
+
+
+	    if (ecrase || noye) {
+	    	isMoving = false;
+	    	isMovingUp = false;
+	    	isMovingDown = false;
+	    	isMovingRight = false;
+	    	isMovingLeft = false;
+	    	World.getInstance().frogInitPos();
+	    }
+	    
 		
 		// ----------------- METHODE B : par un appui sur l’écran séparé en 4 zones -----------------
         if (Gdx.input.isTouched()) {
@@ -206,67 +226,7 @@ public class ControllerFrogger {
     				}
     			}
             }
-        }
-        
-		// ----------------- METHODE A : par un appui sur les flèches du clavier -----------------
-		/*
-		if (Gdx.input.isKeyPressed(Keys.UP)) { // HAUT
-			if (frog.getY()+frog.getHeight()+frog.getDeplacement()<=World.getInstance().getHeight()) {
-				if (!isMoving) frog.deplacerHaut();
-				isMoving = true;
-				if (animTime < timeBetweenJump)
-					animTime += delta;
-				else {
-					animTime = 0;
-					isMoving = false;
-				}
-			}
-		}
-		if (Gdx.input.isKeyPressed(Keys.DOWN)) { // BAS
-			if (frog.getY()-frog.getDeplacement()>=0) {
-				if (!isMoving) frog.deplacerBas();
-				isMoving = true;
-				if (animTime < timeBetweenJump)
-					animTime += delta;
-				else {
-					animTime = 0;
-					isMoving = false;
-				}
-			}
-		}
-		if (Gdx.input.isKeyPressed(Keys.LEFT)) { // GAUCHE
-			if (frog.getX()-frog.getDeplacement()>=0) {
-				if (!isMoving) frog.deplacerGauche();
-				isMoving = true;
-				if (animTime < timeBetweenJump)
-					animTime += delta;
-				else {
-					animTime = 0;
-					isMoving = false;
-				}
-			}
-		}
-		if (Gdx.input.isKeyPressed(Keys.RIGHT)) { // DROITE
-			if (frog.getX()+frog.getWidth()+frog.getDeplacement()<=World.getInstance().getWidth()) {
-				if (!isMoving) frog.deplacerDroite();
-				isMoving = true;
-				if (animTime < timeBetweenJump)
-					animTime += delta;
-				else {
-					animTime = 0;
-					isMoving = false;
-				}
-			}
-		}
-		
-		if (!(Gdx.input.isTouched()) && 
-			(!Gdx.input.isKeyPressed(Keys.UP) && !Gdx.input.isKeyPressed(Keys.DOWN) &&
-			!Gdx.input.isKeyPressed(Keys.LEFT) && !Gdx.input.isKeyPressed(Keys.RIGHT))) {
-			isMoving = false;
-			animTime = 0;
-		}
-		*/
-        
+        }   
 	}
 	
 	public void wantToJump(String Direction, Frogger frog, float delta) {
@@ -282,6 +242,7 @@ public class ControllerFrogger {
 							frameTime = 0;
 							animTime = 0;
 							waitTime=0;
+							frog.setScore(frog.getScore()+1);
 						}
 					}
 				}
@@ -301,7 +262,7 @@ public class ControllerFrogger {
 	            break;
 	        case "DOWN":
 				if (Gdx.input.isKeyJustPressed(Keys.DOWN)) {
-					if (frog.getY()-frog.getDeplacement()<=0) { // frogger ne depasse pas de lecran
+					if (frog.getY()-frog.getDeplacement()>=0) { // frogger ne depasse pas de lecran
 						if (!isMoving) { // s'il n'est pas deja en train de sauter il peut commencer
 							isMovingDown = true;
 							next = frog.getY()-frog.getDeplacement();
@@ -404,7 +365,7 @@ public class ControllerFrogger {
 			}
 			frog.setState("frogger"+cptImage);
 		}
-		else if (isMovingDown) { // il faut deplacer le frogger et l'animation
+		if (isMovingDown) { // il faut deplacer le frogger et l'animation
 			frameTime+=delta;
 			animTime+=delta;
 			if (frameTime>frameLenght && cptImage<6) { // il faut changer l'image et augmenter la position du frogger
@@ -420,11 +381,11 @@ public class ControllerFrogger {
 			}
 			frog.setState("frogger"+cptImage);
 		}
-		else if (isMovingRight) { // il faut deplacer le frogger et l'animation
+		if (isMovingRight) { // il faut deplacer le frogger et l'animation
 			frameTime+=delta;
 			animTime+=delta;
 			if (frameTime>frameLenght && cptImage<6) { // il faut changer l'image et augmenter la position du frogger
-				frog.setX((float)(frog.getY()+deltaPos));
+				frog.setX((float)(frog.getX()+deltaPos));
 				cptImage++;
 				frameTime = 0;
 			}
@@ -436,11 +397,11 @@ public class ControllerFrogger {
 			}
 			frog.setState("frogger"+cptImage);
 		}
-		else if (isMovingLeft) { // il faut deplacer le frogger et l'animation
+		if (isMovingLeft) { // il faut deplacer le frogger et l'animation
 			frameTime+=delta;
 			animTime+=delta;
 			if (frameTime>frameLenght && cptImage<6) { // il faut changer l'image et augmenter la position du frogger
-				frog.setX((float)(frog.getY()-deltaPos));
+				frog.setX((float)(frog.getX()-deltaPos));
 				cptImage++;
 				frameTime = 0;
 			}

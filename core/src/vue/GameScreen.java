@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 
+import model.World;
+
 public class GameScreen implements Screen {
 	
 	MyGdxGame game;
@@ -26,6 +28,12 @@ public class GameScreen implements Screen {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		game.batch.begin();
 		game.worldRenderer.render(game.batch, delta);
+	    if (World.getInstance().getFrog().getVie() <= 0) {
+	    	int s = World.getInstance().getFrog().getScore();
+	    	World.getInstance().getFrog().setScore(0);
+			this.dispose();
+			game.setScreen(new GameOverScreen(game, s));
+	    }
 		game.batch.end();
 		if (game.debug) debug.afficherDebug();
 	}

@@ -19,7 +19,6 @@ public class MyGdxGame extends Game {
 		batch = new SpriteBatch();
 		worldRenderer = new WorldRenderer();
 		setScreen(new IntroScreen(this));
-		//setScreen(new GameScreen(this)); dans le render de IntroScreen
 		JsonReader json = new JsonReader();
         JsonValue config = json.parse(Gdx.files.internal("configuration.json"));
         JsonValue debug = config.get("Debug");

@@ -2,6 +2,7 @@ package controller;
 
 import java.util.ArrayList;
 
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
@@ -25,6 +26,11 @@ public class WorldRenderer {
 
    private ArrayList<ControllerRoute> lesControllerRoute;
    private ArrayList<ControllerRiviere> lesControllerRiviere;
+   
+   BitmapFont fontScore;
+   BitmapFont fontVies;
+   CharSequence strScore = "Score = ";
+   CharSequence strVies = "Vies = ";
 
 	public WorldRenderer() {
 		WorldRenderer.world = World.getInstance();
@@ -43,6 +49,9 @@ public class WorldRenderer {
 		for (Riviere riviere : world.getLesRivieres()) {
 			lesControllerRiviere.add(new ControllerRiviere(riviere));
 		}
+		
+		fontScore = new BitmapFont();
+		fontVies = new BitmapFont();
 	}
 
 	public void render(SpriteBatch batch, float delta) {
@@ -61,6 +70,15 @@ public class WorldRenderer {
 					s.setSize(mapper(elem.getWidth()), mapper(elem.getHeight()));
 					s.setPosition(mapper(dynamic.getX()), mapper(dynamic.getY()));
 					s.draw(batch);
+				}
+				else {
+					if (!elem.equals(world.getFrog())) { // les froggers dans les refuges
+						DynamicGameElement dynamic = (DynamicGameElement)elem;
+						Sprite s = new Sprite(TextureFactory.getInstance().getTexture(elem));
+						s.setRotation(dynamic.getDirection());
+						s.setPosition(mapper(dynamic.getX()), mapper(dynamic.getY()));
+						s.draw(batch);
+					}
 				}
 			} else if (elem instanceof StaticGameElement)
 				batch.draw(TextureFactory.getInstance().getTexture(elem), mapper(elem.getX()), mapper(elem.getY()), mapper(elem.getWidth()), mapper(elem.getHeight()));
@@ -100,6 +118,9 @@ public class WorldRenderer {
 				s.draw(batch);
 			}
 		}
+		
+		fontScore.draw(batch, strScore +  Integer.toString(world.getFrog().getScore()), 10, 40);
+		fontVies.draw(batch, strVies +  Integer.toString(world.getFrog().getVie()), 10, 25);
 		
 	}
 	
