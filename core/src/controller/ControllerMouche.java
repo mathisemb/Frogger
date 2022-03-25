@@ -31,11 +31,22 @@ public class ControllerMouche {
 			// Position aléatoire = indice aléatoire dans le tableau de refuges possibles
 			Random r = new Random();
 			int i = r.nextInt(5);
-			mouche.setX(lesRefuges.get(i).getX());
-			mouche.setY(lesRefuges.get(i).getY());
+			if (!lesRefuges.get(i).isOccupied()) {
+				mouche.setX(lesRefuges.get(i).getX());
+				mouche.setY(lesRefuges.get(i).getY());
+			}
+			
+			int nb=0;
+			for(Refuge refuge : World.getInstance().getLesRefuges()) {
+				if (refuge.isOccupied()) nb++;
+			}
+			if (nb==World.getInstance().getLesRefuges().size()-1) {
+				mouche.setX(-mouche.getX());
+				mouche.setY(-mouche.getY());
+			}
 
 			// Intervalle aléatoire
-			this.time = (float)Math.random(); // Math.random()*(Max-Min)
+			//this.time = (float)Math.random(); // Math.random()*(Max-Min)
 		}
 	}
 }

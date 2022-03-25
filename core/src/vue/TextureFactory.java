@@ -85,6 +85,7 @@ public class TextureFactory {
 	    lesTextures.put("tronc2", tronc2);
 	    lesTextures.put("tronc3", tronc3);
 	    lesTextures.put("mouche", mouche);
+	    lesTextures.put("projectile", mouche);
 	}
 
 	

@@ -13,9 +13,15 @@ public class World {
 	private ArrayList<Riviere> lesRivieres;
 	private ArrayList<Refuge> lesRefuges;
 	private Frogger frog;
+	private Mouche mouche;
 	
 	private int height;
 	private int width;
+	
+	private int nbTirs;
+	private float distance;
+	private float projHeight;
+	private float projWidth;
 	
 	private static World instance; // design pattern singleton
 
@@ -34,7 +40,9 @@ public class World {
         initRivieres(config);
         initRefuges(config);
         initFrogger(config);
-        lesElements.add(new Mouche(0, 12, 1, 1, 2, 0, "mouche"));
+        initProjectile(config);
+        mouche = new Mouche(0, 12, 1, 1, 2, 0, "mouche");
+        lesElements.add(mouche);
 	}
 
 	public static final World getInstance() { // design pattern singleton
@@ -91,22 +99,28 @@ public class World {
         lesElements.add(new Fond(Fond.getFloat("x"),Fond.getFloat("y"), Fond.getFloat("height"), Fond.getFloat("width")));
     }
     
-    public void frogInitPos() {
+    public void initProjectile(JsonValue config) {
+        JsonValue projectile = config.get("Projectile");
+        distance = projectile.getFloat("distance");
+    	nbTirs = projectile.getInt("nbTirs");
+    	projHeight = projectile.getFloat("height");
+    	projWidth= projectile.getFloat("width");
+    }
+    
+    public void frogInitPos(boolean win) {
     	JsonReader json = new JsonReader();
         JsonValue config = json.parse(Gdx.files.internal("configuration.json"));
         JsonValue Frogger = config.get("Frogger");
         frog.setX(Frogger.getFloat("x"));
         frog.setY(Frogger.getFloat("y"));
-        frog.setHeight(Frogger.getFloat("height"));
-        frog.setWidth(Frogger.getFloat("width"));
-        frog.setDeplacement(Frogger.getFloat("pas"));
         frog.setState("frogger");
-        frog.setVie(frog.getVie()-1);
+        if (!win)
+        	frog.setVie(frog.getVie()-1);
     }
     
 	public void createFroggerRefuge(Refuge refuge) {
-		lesElements.add(new Frogger(refuge.getX(), refuge.getY(), frog.getHeight(), frog.getWidth(), frog.getDeplacement(), "frogger", 0, 0));
-		refuge.setOccupied(true);
+		Frogger f = new Frogger(refuge.getX(), refuge.getY(), frog.getHeight(), frog.getWidth(), frog.getDeplacement(), "frogger", 0, 0);
+		refuge.setInside(f);
 	}
     
     
@@ -117,6 +131,32 @@ public class World {
         return Frogger.getInt("vie");
     }
     
+    public void speedUp() {
+    	JsonReader json = new JsonReader();
+        JsonValue config = json.parse(Gdx.files.internal("configuration.json"));
+        JsonValue LvlSup = config.get("LvlSup");
+        int per = LvlSup.getInt("percentage");
+        for(Riviere riviere : getLesRivieres()) {
+        	riviere.setSpeed((float)(riviere.getSpeed()+(riviere.getSpeed()*(per/100.0))));
+        }
+        for(Route route : getLesRoutes()) {
+        	route.setSpeed((float)(route.getSpeed()+(route.getSpeed()*(per/100.0))));
+        }
+    }
+    
+    public float getTirDistance() {
+    	return distance;
+    }
+    public int getNbTirs() {
+    	return nbTirs;
+    }
+    public float getHeightProjectile() {
+    	return projHeight;
+    }
+    public float getWidthProjectile() {
+    	return projWidth;
+    }
+       
 	// Getters
 	public ArrayList<GameElement> getLesElements() {
 		return lesElements;
@@ -147,6 +187,10 @@ public class World {
 
 	public int getWidth() {
 		return width;
+	}
+
+	public Mouche getMouche() {
+		return mouche;
 	}
 	
 	

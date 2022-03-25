@@ -11,6 +11,8 @@ import model.Frogger;
 import model.GameElement;
 import model.GameElementLineaire;
 import model.Mouche;
+import model.Projectile;
+import model.Refuge;
 import model.Riviere;
 import model.Route;
 import model.StaticGameElement;
@@ -71,6 +73,7 @@ public class WorldRenderer {
 					s.setPosition(mapper(dynamic.getX()), mapper(dynamic.getY()));
 					s.draw(batch);
 				}
+				/*
 				else {
 					if (!elem.equals(world.getFrog())) { // les froggers dans les refuges
 						DynamicGameElement dynamic = (DynamicGameElement)elem;
@@ -80,6 +83,7 @@ public class WorldRenderer {
 						s.draw(batch);
 					}
 				}
+				*/
 			} else if (elem instanceof StaticGameElement)
 				batch.draw(TextureFactory.getInstance().getTexture(elem), mapper(elem.getX()), mapper(elem.getY()), mapper(elem.getWidth()), mapper(elem.getHeight()));
 		}
@@ -94,6 +98,15 @@ public class WorldRenderer {
 				Sprite s = new Sprite(TextureFactory.getInstance().getTexture(elem));
 				s.setSize(mapper(elem.getWidth()), mapper(elem.getHeight()));
 				s.setPosition(mapper(elem.getX()), mapper(elem.getY()));
+				s.draw(batch);
+			}
+		}
+		
+		for(Refuge refuge : world.getLesRefuges()) {
+			if (refuge.isOccupied()) {
+				Sprite s = new Sprite(TextureFactory.getInstance().getTexture(refuge.getInside()));
+				s.setRotation(refuge.getInside().getDirection());
+				s.setPosition(mapper(refuge.getInside().getX()), mapper(refuge.getInside().getY()));
 				s.draw(batch);
 			}
 		}
@@ -121,6 +134,15 @@ public class WorldRenderer {
 		
 		fontScore.draw(batch, strScore +  Integer.toString(world.getFrog().getScore()), 10, 40);
 		fontVies.draw(batch, strVies +  Integer.toString(world.getFrog().getVie()), 10, 25);
+		
+		
+		for(Projectile proj : world.getFrog().getLesProjectiles()) {
+			s = new Sprite(TextureFactory.getInstance().getTexture(proj));
+			//s.setRotation(v.getDirection());
+			//s.setSize(mapper(proj.getWidth()), mapper(proj.getHeight()));
+			s.setPosition(mapper(proj.getX()), mapper(proj.getY()));
+			s.draw(batch);
+		}
 		
 	}
 	

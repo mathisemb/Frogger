@@ -18,5 +18,11 @@ public class GameElementLineaire extends DynamicGameElement {
 	public float getDistance() {
 		return distance;
 	}
+
+	public void setSpeed(float speed) {
+		this.speed = speed;
+	}
+	
+	
 	
 }

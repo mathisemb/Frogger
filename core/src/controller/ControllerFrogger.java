@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Rectangle;
 
 import model.Frogger;
 import model.GameElementLineaire;
+import model.Projectile;
 import model.Refuge;
 import model.Riviere;
 import model.Route;
@@ -36,6 +37,9 @@ public class ControllerFrogger {
 	
 	boolean ecrase;
 	boolean noye;
+	boolean win;
+	
+	float lifeTime; // duree pendant laquelle le frogger est reste vivant utilisee pour le score
 	
 	/*
 	1 animation mouvement = 6 images
@@ -61,7 +65,7 @@ public class ControllerFrogger {
 		deltaPos = World.getInstance().getFrog().getDeplacement()/nbFrames;
 		
 		// variable
-		this.frameTime=0;
+		this.frameTime = 0;
 		this.animTime = 0;
 		this.waitTime = 0;
 		
@@ -75,12 +79,20 @@ public class ControllerFrogger {
 		noye = false;
 
 		allowed = true;
+		
+		lifeTime = 0;
+		
+		win = false;
 	}
 
 	public void majFrogger(float delta, Frogger frog) { // methode appelee dans WorldRenderer pour mettre a jour frogger
 		// on suppose que frogger n'est pas mort
 		ecrase = false;
 		noye = false;
+		win = false;
+		
+		lifeTime+=delta;
+		
 		
 		// --------------- Mouvement du frogger lorsqu'il est sur un tronc ou des tortues ---------------
 		if (!isMoving) {
@@ -142,32 +154,51 @@ public class ControllerFrogger {
 		
 		for(Refuge refuge : World.getInstance().getLesRefuges()) {
 			if (World.getInstance().getFrog().getY()==refuge.getY()) {
-				
 				if ( World.getInstance().getFrog().getX() + (World.getInstance().getFrog().getWidth()/2) < refuge.getX() + refuge.getWidth() ) {
 					if ( World.getInstance().getFrog().getX() + (World.getInstance().getFrog().getWidth()/2) > refuge.getX()) {
-						System.out.print("ok");
-						World.getInstance().createFroggerRefuge(refuge);
-						World.getInstance().frogInitPos();
+						if (!refuge.isOccupied() && !refuge.moucheIsHere()) {
+							System.out.println("Refuge atteint avec succès");
+							win = true;
+							World.getInstance().frogInitPos(true); // on place le frogger a sa pos initiale sans enlever de vie
+							World.getInstance().createFroggerRefuge(refuge); // on cree un frogger dans le refuge
+							int s = World.getInstance().getFrog().getScore();
+							World.getInstance().getFrog().setScore(s+100-(int)(lifeTime));
+							lifeTime = 0;
+							World.getInstance().speedUp();
+						}
+						else {
+							noye = true;
+						}
+					}
+					else {
+						frog.setY(frog.getY()-frog.getDeplacement());
 					}
 				}
-				
-				/*
-				if (World.getInstance().getFrog().getRectangle().overlaps(refuge.getRectangle())) {
-					World.getInstance().createFroggerRefuge(refuge);
-					World.getInstance().frogInitPos();
-				}
-				*/
 			}
 		}
+		
+		//System.out.println("lifeTime = " + lifeTime);
 
-
-	    if (ecrase || noye) {
+	    if ((ecrase || noye) && !win) {
 	    	isMoving = false;
 	    	isMovingUp = false;
 	    	isMovingDown = false;
 	    	isMovingRight = false;
 	    	isMovingLeft = false;
-	    	World.getInstance().frogInitPos();
+	    	World.getInstance().frogInitPos(false);
+	    	lifeTime = 0;
+	    }
+	    
+	    if (Gdx.input.isKeyPressed(Keys.SPACE)) {
+	    	if (World.getInstance().getFrog().getLesProjectiles().size < World.getInstance().getNbTirs()) {
+	    		World.getInstance().getFrog().getLesProjectiles().add(new Projectile(World.getInstance().getFrog()));
+	    	}
+	    }
+	    for (Projectile proj : World.getInstance().getFrog().getLesProjectiles()) {
+	    	if (proj.distanceParcourue()>World.getInstance().getTirDistance())
+	    		World.getInstance().getFrog().getLesProjectiles().removeValue(proj, false);
+	    	else
+	    		proj.majProjectile();
 	    }
 	    
 		
@@ -242,13 +273,13 @@ public class ControllerFrogger {
 							frameTime = 0;
 							animTime = 0;
 							waitTime=0;
-							frog.setScore(frog.getScore()+1);
+							frog.setScore(frog.getScore()+10);
 						}
 					}
 				}
 				else {
 					waitTime+=delta;
-					System.out.println("waitTime = "+waitTime);
+					//System.out.println("waitTime = "+waitTime);
 					if (waitTime>timeBetweenJump && !isMovingUp) {
 						isMovingUp = true;
 						next = frog.getY()+frog.getDeplacement();
@@ -257,6 +288,7 @@ public class ControllerFrogger {
 						frameTime = 0;
 						animTime = 0;
 						waitTime=0;
+						frog.setScore(frog.getScore()+10);
 					}
 				}
 	            break;
@@ -271,12 +303,13 @@ public class ControllerFrogger {
 							frameTime = 0;
 							animTime = 0;
 							waitTime=0;
+							frog.setScore(frog.getScore()-10);
 						}
 					}
 				}
 				else {
 					waitTime+=delta;
-					System.out.println("waitTime = "+waitTime);
+					//System.out.println("waitTime = "+waitTime);
 					if (waitTime>timeBetweenJump && !isMovingDown) {
 						isMovingDown = true;
 						next = frog.getY()-frog.getDeplacement();
@@ -285,6 +318,7 @@ public class ControllerFrogger {
 						frameTime = 0;
 						animTime = 0;
 						waitTime=0;
+						frog.setScore(frog.getScore()-10);
 					}
 				}
 	            break;
@@ -304,7 +338,7 @@ public class ControllerFrogger {
 				}
 				else {
 					waitTime+=delta;
-					System.out.println("waitTime = "+waitTime);
+					//System.out.println("waitTime = "+waitTime);
 					if (waitTime>timeBetweenJump && !isMovingRight) {
 						isMovingRight = true;
 						next = frog.getX()+frog.getDeplacement();
@@ -332,7 +366,7 @@ public class ControllerFrogger {
 				}
 				else {
 					waitTime+=delta;
-					System.out.println("waitTime = "+waitTime);
+					//System.out.println("waitTime = "+waitTime);
 					if (waitTime>timeBetweenJump && !isMovingLeft) {
 						isMovingLeft = true;
 						next = frog.getX()-frog.getDeplacement();
@@ -350,6 +384,7 @@ public class ControllerFrogger {
 	
 	public void animationFrogger(Frogger frog, float delta) {
 		if (isMovingUp) { // il faut deplacer le frogger et l'animation
+			frog.setDirection(180);
 			frameTime+=delta;
 			animTime+=delta;
 			if (frameTime>frameLenght && cptImage<6) { // il faut changer l'image et augmenter la position du frogger
@@ -366,6 +401,7 @@ public class ControllerFrogger {
 			frog.setState("frogger"+cptImage);
 		}
 		if (isMovingDown) { // il faut deplacer le frogger et l'animation
+			frog.setDirection(0);
 			frameTime+=delta;
 			animTime+=delta;
 			if (frameTime>frameLenght && cptImage<6) { // il faut changer l'image et augmenter la position du frogger
@@ -382,6 +418,7 @@ public class ControllerFrogger {
 			frog.setState("frogger"+cptImage);
 		}
 		if (isMovingRight) { // il faut deplacer le frogger et l'animation
+			frog.setDirection(90);
 			frameTime+=delta;
 			animTime+=delta;
 			if (frameTime>frameLenght && cptImage<6) { // il faut changer l'image et augmenter la position du frogger
@@ -398,6 +435,7 @@ public class ControllerFrogger {
 			frog.setState("frogger"+cptImage);
 		}
 		if (isMovingLeft) { // il faut deplacer le frogger et l'animation
+			frog.setDirection(270);
 			frameTime+=delta;
 			animTime+=delta;
 			if (frameTime>frameLenght && cptImage<6) { // il faut changer l'image et augmenter la position du frogger
