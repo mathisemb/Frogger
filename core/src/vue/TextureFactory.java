@@ -12,6 +12,7 @@ public class TextureFactory {
 	private Map<String, Texture> lesTextures;
 	
 	private Texture intro;
+	private Texture gameover;
 	private Texture fond;
 	private Texture frogger1, frogger2, frogger3, frogger4, frogger5, frogger6;
 	private Texture voitureBleue;
@@ -53,6 +54,7 @@ public class TextureFactory {
 		mouche = new Texture("mouche/mouche.png");
 		
 		intro = new Texture("intro.png");
+		gameover = new Texture("gameover.png");
 		
 		/* Hashmap de class, texture pour éviter de faire des instanceof
 		lesTextures = new HashMap<>();
@@ -134,5 +136,8 @@ public class TextureFactory {
 	}
 	public Texture getTextureIntro() {
 		return intro;
-	}	
+	}
+	public Texture getTextureGameover() {
+		return gameover;
+	}
 }

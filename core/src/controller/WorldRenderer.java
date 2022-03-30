@@ -138,8 +138,8 @@ public class WorldRenderer {
 		
 		for(Projectile proj : world.getFrog().getLesProjectiles()) {
 			s = new Sprite(TextureFactory.getInstance().getTexture(proj));
-			//s.setRotation(v.getDirection());
-			//s.setSize(mapper(proj.getWidth()), mapper(proj.getHeight()));
+			//s.setRotation(proj.getDirection());
+			s.setSize(mapper(proj.getWidth()), mapper(proj.getHeight()));
 			s.setPosition(mapper(proj.getX()), mapper(proj.getY()));
 			s.draw(batch);
 		}

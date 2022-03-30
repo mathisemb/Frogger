@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 
 import model.GameElement;
 import model.GameElementLineaire;
+import model.Projectile;
 import model.Riviere;
 import model.Route;
 import model.Vehicule;
@@ -45,6 +46,9 @@ public class Debug {
 		for(Route route : World.getInstance().getLesRoutes()) {
 			for(Vehicule veh : route.getLesVehicules())
 				shapeRenderer.rect(veh.getX()*50, veh.getY()*50, veh.getWidth()*50, veh.getHeight()*50);
+		}
+		for(Projectile proj : World.getInstance().getFrog().getLesProjectiles()) {
+			shapeRenderer.rect(proj.getX()*50, proj.getY()*50, proj.getWidth()*50, proj.getHeight()*50);
 		}
 		shapeRenderer.end();
 	}

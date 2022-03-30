@@ -7,7 +7,25 @@ public class Projectile extends DynamicGameElement {
 	float initialPos;
     
 	public Projectile(Frogger frog) {
-		super(frog.getX(), frog.getY(), World.getInstance().getHeightProjectile(), World.getInstance().getWidthProjectile(), (float)0.1, frog.getDirection(), "projectile");
+		
+		super(  (float)(     (  frog.getX()+ (frog.getWidth())/2  ) - (World.getInstance().getWidthProjectile()/2)   ),
+				(float)(     (  frog.getY()+(frog.getHeight())/2 ) - (World.getInstance().getHeightProjectile()/2)  ),
+				World.getInstance().getHeightProjectile(),
+				World.getInstance().getWidthProjectile(),
+				(float)0.1,
+				frog.getDirection(),
+				"projectile");
+				
+		/*
+		super(  frog.getX(),
+				frog.getY(),
+				World.getInstance().getWidthProjectile(),
+				World.getInstance().getHeightProjectile(),
+				(float)0.1,
+				frog.getDirection(),
+				"projectile");
+				*/
+		
 		this.frog = frog;
 		distance = World.getInstance().getTirDistance();
 		nbTirs= World.getInstance().getNbTirs();

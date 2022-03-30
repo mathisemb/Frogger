@@ -25,7 +25,7 @@ public class IntroScreen implements Screen {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		game.batch.begin();
 		game.batch.draw(TextureFactory.getInstance().getTextureIntro(), 0, 0);
-		if (Gdx.input.isKeyPressed(Keys.SPACE)) {
+		if (Gdx.input.isKeyJustPressed(Keys.ENTER)) {
 			this.dispose();
 			game.setScreen(new GameScreen(game));
 		}

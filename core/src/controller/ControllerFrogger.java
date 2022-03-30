@@ -191,7 +191,10 @@ public class ControllerFrogger {
 	    
 	    if (Gdx.input.isKeyPressed(Keys.SPACE)) {
 	    	if (World.getInstance().getFrog().getLesProjectiles().size < World.getInstance().getNbTirs()) {
-	    		World.getInstance().getFrog().getLesProjectiles().add(new Projectile(World.getInstance().getFrog()));
+	    		if (frog.isNextProjPossible()) {
+	    			World.getInstance().getFrog().getLesProjectiles().add(new Projectile(World.getInstance().getFrog()));
+	    		}
+	    			
 	    	}
 	    }
 	    for (Projectile proj : World.getInstance().getFrog().getLesProjectiles()) {
@@ -200,7 +203,6 @@ public class ControllerFrogger {
 	    	else
 	    		proj.majProjectile();
 	    }
-	    
 		
 		// ----------------- METHODE B : par un appui sur l’écran séparé en 4 zones -----------------
         if (Gdx.input.isTouched()) {

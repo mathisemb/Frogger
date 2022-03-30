@@ -1,6 +1,6 @@
 {
     "Debug" : {
-        "value" : 1
+        "value" : 0
     },
     "LvlSup" : {
         "percentage" : 30
@@ -147,8 +147,8 @@
     },
     "Projectile" : {
         "distance" : 5, 
-        "nbTirs": 5,
-        "height" : 0.2,
-        "width" : 0.2
+        "nbTirs": 3,
+        "height" : 0.7,
+        "width" : 0.7
     }
 }
