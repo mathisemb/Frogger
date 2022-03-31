@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 
 import controller.WorldRenderer;
+import model.World;
 
 public class MyGdxGame extends Game {
 	SpriteBatch batch;
@@ -22,6 +23,7 @@ public class MyGdxGame extends Game {
 		JsonReader json = new JsonReader();
         JsonValue config = json.parse(Gdx.files.internal("configuration.json"));
         JsonValue debug = config.get("Debug");
+        World.getInstance().debug = debug.getBoolean("value");
         this.debug = debug.getBoolean("value");
 	}
 

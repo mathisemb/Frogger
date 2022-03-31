@@ -33,6 +33,8 @@ public class WorldRenderer {
    BitmapFont fontVies;
    CharSequence strScore = "Score = ";
    CharSequence strVies = "Vies = ";
+   
+   float timeMoucheMorte;
 
 	public WorldRenderer() {
 		WorldRenderer.world = World.getInstance();
@@ -54,13 +56,25 @@ public class WorldRenderer {
 		
 		fontScore = new BitmapFont();
 		fontVies = new BitmapFont();
+		
+		timeMoucheMorte = 0;
 	}
 
 	public void render(SpriteBatch batch, float delta) {
 
 		// ----------------- MAJ DU MODELE EN FONCTION DES ACTIONS DU JOUEUR -----------------
 		controllerFrogger.majFrogger(delta, world.getFrog());
-		controllerMouche.majMouche(delta);
+		
+		if (world.getMouche().isDead()) {
+			timeMoucheMorte += delta;
+			if (timeMoucheMorte > 1) {
+				world.getMouche().reset();
+				timeMoucheMorte = 0;
+			}
+		}
+		else {
+			controllerMouche.majMouche(delta);
+		}
 		
 		// ------------------------------ AFFICHAGE SUR LE BATCH ------------------------------
 		for(GameElement elem : world.getLesElements()) {

@@ -2,7 +2,6 @@ package controller;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.math.Rectangle;
 
 import model.Frogger;
 import model.GameElementLineaire;
@@ -10,7 +9,6 @@ import model.Projectile;
 import model.Refuge;
 import model.Riviere;
 import model.Route;
-import model.Tortue;
 import model.Vehicule;
 import model.World;
 
@@ -38,6 +36,10 @@ public class ControllerFrogger {
 	boolean ecrase;
 	boolean noye;
 	boolean win;
+	
+	boolean flotte;
+	boolean surTortue;
+	Riviere laRiviere;
 	
 	float lifeTime; // duree pendant laquelle le frogger est reste vivant utilisee pour le score
 	
@@ -83,6 +85,9 @@ public class ControllerFrogger {
 		lifeTime = 0;
 		
 		win = false;
+		
+		flotte = false;
+		laRiviere = null;
 	}
 
 	public void majFrogger(float delta, Frogger frog) { // methode appelee dans WorldRenderer pour mettre a jour frogger
@@ -93,38 +98,38 @@ public class ControllerFrogger {
 		
 		lifeTime+=delta;
 		
-		
-		// --------------- Mouvement du frogger lorsqu'il est sur un tronc ou des tortues ---------------
-		if (!isMoving) {
-			for(Riviere riviere : World.getInstance().getLesRivieres()) {
-				
-				if (frog.getRectangle().overlaps(riviere.getRectangle())) noye = true; // si frogger est au niveau d'une riviere on suppose qu'il est noye
-				
-				for(GameElementLineaire elem : riviere.getLesElements()) {
-					if (elem instanceof Tortue) {
-						if (((Tortue) elem).isFirst()) { // on créer un rectangle qui englobe toutes les tortues du groupe
-							Rectangle rectangle = new Rectangle(elem.getX(), elem.getY(), ((Tortue) elem).getNbTortues(), elem.getHeight());
-							if (frog.getRectangle().overlaps(rectangle)) { // si frogger est sur des tortues alors il n'est plus noye
-								frog.setX(frog.getX()+delta*riviere.getSpeed());
-								noye = false;
-							}
-						}
+		if (!World.getInstance().debug) {
+			// --------------- Mouvement du frogger lorsqu'il est sur un tronc ou des tortues ---------------
+			if (!isMoving) {
+				for(Riviere riviere : World.getInstance().getLesRivieres()) {
+					
+					if (frog.getRectangle().overlaps(riviere.getRectangle())) {
+						noye = true; // si frogger est au niveau d'une riviere on suppose qu'il est noye
+						//surTortue = false;
+						flotte = false;
 					}
-					else { // Tronc
+					
+					for(GameElementLineaire elem : riviere.getLesElements()) {
 						if (frog.getRectangle().overlaps(elem.getRectangle())) { // s'il est sur un tronc alors il n'est plus noye
-							frog.setX(frog.getX()+delta*riviere.getSpeed());
+							flotte = true;
 							noye = false;
-						}
+							laRiviere = riviere;
+						}				
 					}
 				}
-			}	
+			}
+			if (flotte) {
+				if (onWaterinScreen(delta*laRiviere.getSpeed(), delta*laRiviere.getSpeed())) frog.setX(frog.getX()+delta*laRiviere.getSpeed());
+				flotte = false;
+			}
+			
+			// On verifie que le frogger n'est pas ecrase pas une voiture
+			for(Route route : World.getInstance().getLesRoutes()) {
+				for(Vehicule v : route.getLesVehicules())
+					if (frog.getRectangle().overlaps(v.getRectangle())) ecrase = true; // s'il touche une voiture alors il est ecrase
+			}
 		}
 		
-		// On verifie que le frogger n'est pas ecrase pas une voiture
-		for(Route route : World.getInstance().getLesRoutes()) {
-			for(Vehicule v : route.getLesVehicules())
-				if (frog.getRectangle().overlaps(v.getRectangle())) ecrase = true; // s'il touche une voiture alors il est ecrase
-		}
 		
 		// Si un des quatres booleen de mouvement est vrai alors le boolean general isMoving est vrai
 		if (isMovingUp || isMovingDown || isMovingRight || isMovingLeft) {
@@ -137,7 +142,7 @@ public class ControllerFrogger {
 			allowed = true; // frogger ne bouge pas donc est autorise se deplacer ou il veut
 		}
 		
-		// ----------------- METHODE A : par un appui sur les flèches du clavier -----------------
+		// ----------------- METHODE A : par un appui sur les fleches du clavier -----------------
 		if (Gdx.input.isKeyPressed(Keys.UP)) {
 			wantToJump("UP", frog, delta);
 		}
@@ -167,7 +172,11 @@ public class ControllerFrogger {
 							World.getInstance().speedUp();
 						}
 						else {
-							noye = true;
+							if (refuge.moucheIsHere()) {
+								World.getInstance().getMouche().hide();
+								World.getInstance().getFrog().setVie(World.getInstance().getFrog().getVie()+1);
+								System.out.print("vie : "+ (World.getInstance().getFrog().getVie()));
+							}
 						}
 					}
 					else {
@@ -265,8 +274,8 @@ public class ControllerFrogger {
 	public void wantToJump(String Direction, Frogger frog, float delta) {
 	    switch(Direction) {
 	        case "UP":
-				if (Gdx.input.isKeyJustPressed(Keys.UP)) {
-					if (frog.getY()+frog.getHeight()+frog.getDeplacement()<=World.getInstance().getHeight()) { // frogger ne depasse pas de lecran
+	        	if (frog.getY()+frog.getHeight()+frog.getDeplacement()<=World.getInstance().getHeight()) { // frogger ne depasse pas de lecran
+					if (Gdx.input.isKeyJustPressed(Keys.UP)) {
 						if (!isMoving) { // s'il n'est pas deja en train de sauter il peut commencer
 							isMovingUp = true;
 							next = frog.getY()+frog.getDeplacement();
@@ -278,25 +287,25 @@ public class ControllerFrogger {
 							frog.setScore(frog.getScore()+10);
 						}
 					}
-				}
-				else {
-					waitTime+=delta;
-					//System.out.println("waitTime = "+waitTime);
-					if (waitTime>timeBetweenJump && !isMovingUp) {
-						isMovingUp = true;
-						next = frog.getY()+frog.getDeplacement();
-						frog.setDirection(180);
-						cptImage = 1;
-						frameTime = 0;
-						animTime = 0;
-						waitTime=0;
-						frog.setScore(frog.getScore()+10);
+					else {
+						waitTime+=delta;
+						//System.out.println("waitTime = "+waitTime);
+						if (waitTime>timeBetweenJump && !isMovingUp) {
+							isMovingUp = true;
+							next = frog.getY()+frog.getDeplacement();
+							frog.setDirection(180);
+							cptImage = 1;
+							frameTime = 0;
+							animTime = 0;
+							waitTime=0;
+							frog.setScore(frog.getScore()+10);
+						}
 					}
-				}
+	        	}
 	            break;
 	        case "DOWN":
-				if (Gdx.input.isKeyJustPressed(Keys.DOWN)) {
-					if (frog.getY()-frog.getDeplacement()>=0) { // frogger ne depasse pas de lecran
+	        	if (frog.getY()-frog.getDeplacement()>=0) { // frogger ne depasse pas de lecran
+					if (Gdx.input.isKeyJustPressed(Keys.DOWN)) {
 						if (!isMoving) { // s'il n'est pas deja en train de sauter il peut commencer
 							isMovingDown = true;
 							next = frog.getY()-frog.getDeplacement();
@@ -308,25 +317,25 @@ public class ControllerFrogger {
 							frog.setScore(frog.getScore()-10);
 						}
 					}
-				}
-				else {
-					waitTime+=delta;
-					//System.out.println("waitTime = "+waitTime);
-					if (waitTime>timeBetweenJump && !isMovingDown) {
-						isMovingDown = true;
-						next = frog.getY()-frog.getDeplacement();
-						frog.setDirection(0);
-						cptImage = 1;
-						frameTime = 0;
-						animTime = 0;
-						waitTime=0;
-						frog.setScore(frog.getScore()-10);
+					else {
+						waitTime+=delta;
+						//System.out.println("waitTime = "+waitTime);
+						if (waitTime>timeBetweenJump && !isMovingDown) {
+							isMovingDown = true;
+							next = frog.getY()-frog.getDeplacement();
+							frog.setDirection(0);
+							cptImage = 1;
+							frameTime = 0;
+							animTime = 0;
+							waitTime=0;
+							frog.setScore(frog.getScore()-10);
+						}
 					}
-				}
+	        	}
 	            break;
 	        case "RIGHT":
-				if (Gdx.input.isKeyJustPressed(Keys.RIGHT)) {
-					if (frog.getX()+frog.getWidth()+frog.getDeplacement()<=World.getInstance().getWidth()) { // frogger ne depasse pas de lecran
+	        	if (frog.getX()+frog.getWidth()+frog.getDeplacement()<=World.getInstance().getWidth()) { // frogger ne depasse pas de lecran
+					if (Gdx.input.isKeyJustPressed(Keys.RIGHT)) {
 						if (!isMoving) { // s'il n'est pas deja en train de sauter il peut commencer
 							isMovingRight = true;
 							next = frog.getX()+frog.getDeplacement();
@@ -337,24 +346,24 @@ public class ControllerFrogger {
 							waitTime=0;
 						}
 					}
-				}
-				else {
-					waitTime+=delta;
-					//System.out.println("waitTime = "+waitTime);
-					if (waitTime>timeBetweenJump && !isMovingRight) {
-						isMovingRight = true;
-						next = frog.getX()+frog.getDeplacement();
-						frog.setDirection(90);
-						cptImage = 1;
-						frameTime = 0;
-						animTime = 0;
-						waitTime=0;
+					else {
+						waitTime+=delta;
+						//System.out.println("waitTime = "+waitTime);
+						if (waitTime>timeBetweenJump && !isMovingRight) {
+							isMovingRight = true;
+							next = frog.getX()+frog.getDeplacement();
+							frog.setDirection(90);
+							cptImage = 1;
+							frameTime = 0;
+							animTime = 0;
+							waitTime=0;
+						}
 					}
-				}
+	        	}
 	            break;
 	        case "LEFT":
-				if (Gdx.input.isKeyJustPressed(Keys.LEFT)) {
-					if (frog.getX()-frog.getDeplacement()>=0) { // frogger ne depasse pas de lecran
+	        	if (frog.getX()-frog.getDeplacement()>=0) { // frogger ne depasse pas de lecran
+					if (Gdx.input.isKeyJustPressed(Keys.LEFT)) {
 						if (!isMoving) { // s'il n'est pas deja en train de sauter il peut commencer
 							isMovingLeft = true;
 							next = frog.getX()-frog.getDeplacement();
@@ -365,20 +374,20 @@ public class ControllerFrogger {
 							waitTime=0;
 						}
 					}
-				}
-				else {
-					waitTime+=delta;
-					//System.out.println("waitTime = "+waitTime);
-					if (waitTime>timeBetweenJump && !isMovingLeft) {
-						isMovingLeft = true;
-						next = frog.getX()-frog.getDeplacement();
-						frog.setDirection(270);
-						cptImage = 1;
-						frameTime = 0;
-						animTime = 0;
-						waitTime=0;
+					else {
+						waitTime+=delta;
+						//System.out.println("waitTime = "+waitTime);
+						if (waitTime>timeBetweenJump && !isMovingLeft) {
+							isMovingLeft = true;
+							next = frog.getX()-frog.getDeplacement();
+							frog.setDirection(270);
+							cptImage = 1;
+							frameTime = 0;
+							animTime = 0;
+							waitTime=0;
+						}
 					}
-				}
+	        	}
 	            break;
 	        default: break;
 		}
@@ -454,4 +463,23 @@ public class ControllerFrogger {
 			frog.setState("frogger"+cptImage);
 		}
 	}
+	
+	public boolean nextMoveIsInScreen() {
+		Frogger frog = World.getInstance().getFrog();
+    	return (frog.getY()+frog.getHeight()+frog.getDeplacement()<=World.getInstance().getHeight())
+    			&& (frog.getY()-frog.getDeplacement()>=0)
+    			&& (frog.getX()+frog.getWidth()+frog.getDeplacement()<=World.getInstance().getWidth())
+    			&& (frog.getX()-frog.getDeplacement()>=0);
+
+	}
+	
+	public boolean onWaterinScreen(float dx, float dy) {
+		Frogger frog = World.getInstance().getFrog();
+    	return (frog.getY()+frog.getHeight()+dy<=World.getInstance().getHeight())
+    			&& (frog.getY()-dy>=0)
+    			&& (frog.getX()+frog.getWidth()+dx<=World.getInstance().getWidth())
+    			&& (frog.getX()-dx>=0);
+
+	}
+	
 }

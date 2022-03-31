@@ -23,6 +23,8 @@ public class World {
 	private float projHeight;
 	private float projWidth;
 	
+	public boolean debug;
+	
 	private static World instance; // design pattern singleton
 
 	public World() throws IOException {		

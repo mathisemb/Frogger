@@ -36,10 +36,10 @@ public class WinScreen implements Screen {
 		game.batch.begin();
 		game.batch.draw(TextureFactory.getInstance().getTextureIntro(), 0, 0);
 		fontScore.draw(game.batch, strScore +  Integer.toString(score), 25, 120);
-		if (Gdx.input.isKeyPressed(Keys.SPACE)) {
+		if (Gdx.input.isKeyPressed(Keys.ENTER)) {
 			this.dispose();
 			World.getInstance().getFrog().setVie(World.getInstance().getVieBegin());
-			game.setScreen(new GameScreen(game));
+			game.setScreen(new IntroScreen(game));
 		}
 		game.batch.end();
 	}
