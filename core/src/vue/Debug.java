@@ -1,8 +1,11 @@
 package vue;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
 
 import model.GameElement;
 import model.GameElementLineaire;
@@ -14,16 +17,34 @@ import model.World;
 
 public class Debug {
 	
+	public boolean afficherGrille;
+	public boolean collisionsVoiture;
+	public boolean collisionEau;
+	
+	private static Debug instance; // design pattern singleton
+
+	public static final Debug getInstance() { // design pattern singleton
+		if (instance == null)
+			instance = new Debug();
+		return instance;
+	}
+	
 	ShapeRenderer shapeRenderer;
 	int width;
 	int height;
 	int unit;
 	
-	Debug(int height, int width, int unit) {
-		this.width = width;
-		this.height = height;
-		this.unit = unit;
+	Debug() {
+		this.width = 9;
+		this.height = 13;
+		this.unit = 50;
 		shapeRenderer = new ShapeRenderer();
+		JsonReader json = new JsonReader();
+        JsonValue config = json.parse(Gdx.files.internal("configuration.json"));
+        JsonValue debug = config.get("Debug");
+        this.afficherGrille = debug.getBoolean("afficherGrille");
+        this.collisionsVoiture = debug.getBoolean("collisionsVoiture");
+        this.collisionEau = debug.getBoolean("collisionEau");
 	}
 	
 	public void afficherDebug() {
@@ -52,4 +73,30 @@ public class Debug {
 		}
 		shapeRenderer.end();
 	}
+
+	public boolean isAfficherGrille() {
+		return afficherGrille;
+	}
+
+	public void setAfficherGrille(boolean afficherGrille) {
+		this.afficherGrille = afficherGrille;
+	}
+
+	public boolean isCollisionsVoiture() {
+		return collisionsVoiture;
+	}
+
+	public void setCollisionsVoiture(boolean collisionsVoiture) {
+		this.collisionsVoiture = collisionsVoiture;
+	}
+
+	public boolean isCollisionEau() {
+		return collisionEau;
+	}
+
+	public void setCollisionEau(boolean collisionEau) {
+		this.collisionEau = collisionEau;
+	}
+	
+	
 }

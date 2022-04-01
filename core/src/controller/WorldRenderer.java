@@ -1,6 +1,7 @@
 package controller;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -11,20 +12,22 @@ import model.Frogger;
 import model.GameElement;
 import model.GameElementLineaire;
 import model.Mouche;
+import model.MoucheVolante;
 import model.Projectile;
 import model.Refuge;
 import model.Riviere;
 import model.Route;
 import model.StaticGameElement;
-import model.Tortue;
 import model.Vehicule;
 import model.World;
+import vue.Debug;
 import vue.TextureFactory;
 
 public class WorldRenderer {
    private static World world;
    private static ControllerFrogger controllerFrogger;
    private static ControllerMouche controllerMouche;
+   private static ControllerMoucheVolante controllerMoucheVolante;
 
    private ArrayList<ControllerRoute> lesControllerRoute;
    private ArrayList<ControllerRiviere> lesControllerRiviere;
@@ -41,7 +44,10 @@ public class WorldRenderer {
 		WorldRenderer.controllerFrogger = new ControllerFrogger();
 		for(GameElement elem:world.getLesElements()) {
 			if (elem instanceof Mouche) {
-				WorldRenderer.controllerMouche = new ControllerMouche((Mouche)elem);
+				controllerMouche = new ControllerMouche((Mouche)elem);
+			}
+			if (elem instanceof MoucheVolante) {
+				controllerMoucheVolante = new ControllerMoucheVolante((MoucheVolante)elem);
 			}
 		}
 		
@@ -61,6 +67,8 @@ public class WorldRenderer {
 	}
 
 	public void render(SpriteBatch batch, float delta) {
+		
+		System.out.println("Collisions véhicules = " + Debug.getInstance().collisionsVoiture + "	| Collision rivière = " + Debug.getInstance().collisionEau);
 
 		// ----------------- MAJ DU MODELE EN FONCTION DES ACTIONS DU JOUEUR -----------------
 		controllerFrogger.majFrogger(delta, world.getFrog());
@@ -75,11 +83,30 @@ public class WorldRenderer {
 		else {
 			controllerMouche.majMouche(delta);
 		}
+
+		
+		if (controllerMoucheVolante.getMouche().isOutOfScreen()) {
+			controllerMoucheVolante.getMouche().setMorte(true);
+			this.newMoucheVolante();
+			// System.out.println("new mouche : " + controllerMoucheVolante.getMouche().getX() + " , " + controllerMoucheVolante.getMouche().getY());
+		}
+		else {
+			controllerMoucheVolante.majMouche(delta);
+		}
+		/*
+		if (!controllerMoucheVolante.getMouche().isDead()) {
+			controllerMoucheVolante.majMouche(delta);
+		}
+		else {
+			this.newMoucheVolante();
+		}
+		*/
+		
 		
 		// ------------------------------ AFFICHAGE SUR LE BATCH ------------------------------
 		for(GameElement elem : world.getLesElements()) {
 			if (elem instanceof DynamicGameElement) {
-				if (!(elem instanceof Frogger)) {
+				if (!(elem instanceof Frogger) && !(elem instanceof MoucheVolante)) {
 					DynamicGameElement dynamic = (DynamicGameElement)elem;
 					Sprite s = new Sprite(TextureFactory.getInstance().getTexture(elem));
 					//s.setRotation(dynamic.getDirection());
@@ -158,11 +185,138 @@ public class WorldRenderer {
 			s.draw(batch);
 		}
 		
+		s = new Sprite(TextureFactory.getInstance().getTexture(world.getMoucheVolante()));
+		//s.setRotation(proj.getDirection());
+		s.setSize(mapper(world.getMoucheVolante().getWidth()), mapper(world.getMoucheVolante().getHeight()));
+		s.setPosition(mapper(world.getMoucheVolante().getX()), mapper(world.getMoucheVolante().getY()));
+		s.draw(batch);
+		
 	}
 	
 	public int mapper(float d) {
 		// traduit les coordonnées et taille de world en taille en pixel pour l'affichage libgdx
 		return (int)(d*50);
+	}
+	
+	public void newMoucheVolante() {
+		/*
+		float y1 = (float) (Math.random() * 13);
+		float y2 = (float) (Math.random() * 13);
+		
+		float x1;
+		float x2;
+		Random r = new Random();
+		int i = r.nextInt(2);
+		switch(i) {
+			case 0: // gauche a droite
+				x1 = -world.getMoucheVolante().getWidth();
+				x2 = 9;
+				break;
+			default: // droite a gauche
+				x1 = 9;
+				x2 = -world.getMoucheVolante().getWidth();
+				break;
+		}
+		*/
+		
+		
+		
+		float x1;
+		float x2;
+		float y1;
+		float y2;
+		Random r = new Random();
+		int i = r.nextInt(4);
+		switch(i) {
+			case 0: // cote gauche
+				x1 = -world.getMoucheVolante().getWidth();
+				y1 = (float) (Math.random() * 13);
+				r = new Random();
+				i = r.nextInt(3);
+				switch(i) {
+					case 0: // cote bas
+						x2 = (float) (Math.random() * 10);
+						y2 = -world.getMoucheVolante().getHeight();
+						break;
+					case 1: // cote droit
+						x2 = 9 + world.getMoucheVolante().getWidth();
+						y2 = (float) (Math.random() * 13);
+						break;
+					default: // cote haut
+						x2 = (float) (Math.random() * 10);
+						y2 = 13 + world.getMoucheVolante().getHeight();
+						break;
+				}
+				break;
+			case 1: // cote bas
+				x1 = (float) (Math.random() * 10);
+				y1 = -world.getMoucheVolante().getHeight();
+				r = new Random();
+				i = r.nextInt(3);
+				switch(i) {
+					case 0: // cote gauche
+						x2 = -world.getMoucheVolante().getWidth();
+						y2 = (float) (Math.random() * 13);
+						break;
+					case 1: // cote droit
+						x2 = 9 + world.getMoucheVolante().getWidth();
+						y2 = (float) (Math.random() * 13);
+						break;
+					default: // cote haut
+						x2 = (float) (Math.random() * 10);
+						while(x2==x1) {
+							x2 = (float) (Math.random() * 10);
+						}
+						y2 = 13 + world.getMoucheVolante().getHeight();
+						break;
+				}
+				break;
+			case 2: // cote droit
+				x1 = 9 + world.getMoucheVolante().getWidth();
+				y1 = (float) (Math.random() * 13);
+				r = new Random();
+				i = r.nextInt(3);
+				switch(i) {
+					case 0: // cote bas
+						x2 = (float) (Math.random() * 10);
+						y2 = -world.getMoucheVolante().getHeight();
+						break;
+					case 1: // cote gauche
+						x2 = -world.getMoucheVolante().getWidth();
+						y2 = (float) (Math.random() * 13);
+						break;
+					default: // cote haut
+						x2 = (float) (Math.random() * 10);
+						y2 = 13 + world.getMoucheVolante().getHeight();
+						break;
+				}
+				break;
+			default: // cote haut
+				x1 = (float) (Math.random() * 10);
+				y1 = 13 + world.getMoucheVolante().getHeight();
+				r = new Random();
+				i = r.nextInt(3);
+				switch(i) {
+					case 0: // cote bas
+						x2 = (float) (Math.random() * 10);
+						while(x2==x1) {
+							x2 = (float) (Math.random() * 10);
+						}
+						y2 = -world.getMoucheVolante().getHeight();
+						break;
+					case 1: // cote droit
+						x2 = 9 + world.getMoucheVolante().getWidth();
+						y2 = (float) (Math.random() * 13);
+						break;
+					default: // cote gauche
+						x2 = -world.getMoucheVolante().getWidth();
+						y2 = (float) (Math.random() * 13);
+						break;
+				}
+				break;
+		}
+		world.setMoucheVolante(new MoucheVolante(x1, y1, x2, y2, world.getMoucheVolante().getHeight(), world.getMoucheVolante().getWidth(), world.getMoucheVolante().getDeplacement()));
+		WorldRenderer.controllerMoucheVolante.setMouche(world.getMoucheVolante());
 	}
 	
 }

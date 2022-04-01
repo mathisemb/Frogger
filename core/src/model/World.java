@@ -14,6 +14,7 @@ public class World {
 	private ArrayList<Refuge> lesRefuges;
 	private Frogger frog;
 	private Mouche mouche;
+	private MoucheVolante moucheVolante;
 	
 	private int height;
 	private int width;
@@ -43,6 +44,7 @@ public class World {
         initRefuges(config);
         initFrogger(config);
         initProjectile(config);
+        initMoucheVolante(config);
         mouche = new Mouche(0, 12, 1, 1, 2, 0, "mouche");
         lesElements.add(mouche);
 	}
@@ -96,9 +98,16 @@ public class World {
         this.frog = new Frogger(Frogger.getFloat("x"),Frogger.getFloat("y"), Frogger.getFloat("height"), Frogger.getFloat("width"), Frogger.getFloat("pas"),"frogger", Frogger.getInt("vie"), 0);
         lesElements.add(frog);
     }
+    
     public void initFond(JsonValue config) {
         JsonValue Fond = config.get("Fond");
         lesElements.add(new Fond(Fond.getFloat("x"),Fond.getFloat("y"), Fond.getFloat("height"), Fond.getFloat("width")));
+    }
+    
+    public void initMoucheVolante(JsonValue config) {
+        JsonValue mv = config.get("MoucheVolante");
+        this.moucheVolante = new MoucheVolante(mv.getFloat("x1"),mv.getFloat("y1"), mv.getFloat("x2"),mv.getFloat("y2"), mv.getFloat("height"), mv.getFloat("width"), mv.getFloat("speed"));
+        lesElements.add(moucheVolante);
     }
     
     public void initProjectile(JsonValue config) {
@@ -144,6 +153,10 @@ public class World {
         for(Route route : getLesRoutes()) {
         	route.setSpeed((float)(route.getSpeed()+(route.getSpeed()*(per/100.0))));
         }
+    }
+    
+    public void resetSpeed() {
+    	
     }
     
     public float getTirDistance() {
@@ -194,7 +207,15 @@ public class World {
 	public Mouche getMouche() {
 		return mouche;
 	}
-	
-	
+
+	public MoucheVolante getMoucheVolante() {
+		return moucheVolante;
+	}
+
+	public void setMoucheVolante(MoucheVolante moucheVolante2) {
+        lesElements.remove(this.moucheVolante);
+        this.moucheVolante = moucheVolante2;
+        lesElements.add(moucheVolante2);
+	}
 
 }

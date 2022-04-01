@@ -11,6 +11,7 @@ import model.Riviere;
 import model.Route;
 import model.Vehicule;
 import model.World;
+import vue.Debug;
 
 public class ControllerFrogger {
 	float animTime;
@@ -98,9 +99,19 @@ public class ControllerFrogger {
 		
 		lifeTime+=delta;
 		
-		if (!World.getInstance().debug) {
-			// --------------- Mouvement du frogger lorsqu'il est sur un tronc ou des tortues ---------------
-			if (!isMoving) {
+		if (Gdx.input.isKeyJustPressed(Keys.A)) {
+			Debug.getInstance().setAfficherGrille(!Debug.getInstance().afficherGrille);
+		}
+		if (Gdx.input.isKeyJustPressed(Keys.Z)) {
+			Debug.getInstance().setCollisionsVoiture(!Debug.getInstance().collisionsVoiture);
+		}
+		if (Gdx.input.isKeyJustPressed(Keys.E)) {
+			Debug.getInstance().setCollisionEau(!Debug.getInstance().collisionEau);
+		}
+		
+		// --------------- Mouvement du frogger lorsqu'il est sur un tronc ou des tortues ---------------
+		if (!isMoving) {
+			if (Debug.getInstance().collisionEau) {
 				for(Riviere riviere : World.getInstance().getLesRivieres()) {
 					
 					if (frog.getRectangle().overlaps(riviere.getRectangle())) {
@@ -118,18 +129,22 @@ public class ControllerFrogger {
 					}
 				}
 			}
+
 			if (flotte) {
 				if (onWaterinScreen(delta*laRiviere.getSpeed(), delta*laRiviere.getSpeed())) frog.setX(frog.getX()+delta*laRiviere.getSpeed());
 				flotte = false;
 			}
 			
-			// On verifie que le frogger n'est pas ecrase pas une voiture
-			for(Route route : World.getInstance().getLesRoutes()) {
-				for(Vehicule v : route.getLesVehicules())
-					if (frog.getRectangle().overlaps(v.getRectangle())) ecrase = true; // s'il touche une voiture alors il est ecrase
+			if (Debug.getInstance().collisionsVoiture) {
+				// On verifie que le frogger n'est pas ecrase pas une voiture
+				for(Route route : World.getInstance().getLesRoutes()) {
+					for(Vehicule v : route.getLesVehicules())
+						if (frog.getRectangle().overlaps(v.getRectangle())) ecrase = true; // s'il touche une voiture alors il est ecrase
+				}
+				
+				collisionProjectile(frog);
 			}
 		}
-		
 		
 		// Si un des quatres booleen de mouvement est vrai alors le boolean general isMoving est vrai
 		if (isMovingUp || isMovingDown || isMovingRight || isMovingLeft) {
@@ -144,7 +159,8 @@ public class ControllerFrogger {
 		
 		// ----------------- METHODE A : par un appui sur les fleches du clavier -----------------
 		if (Gdx.input.isKeyPressed(Keys.UP)) {
-			wantToJump("UP", frog, delta);
+			if (!this.nextIsHerbe(frog))
+				wantToJump("UP", frog, delta);
 		}
 		if (Gdx.input.isKeyPressed(Keys.DOWN)) {
 			wantToJump("DOWN", frog, delta);
@@ -165,7 +181,7 @@ public class ControllerFrogger {
 							System.out.println("Refuge atteint avec succès");
 							win = true;
 							World.getInstance().frogInitPos(true); // on place le frogger a sa pos initiale sans enlever de vie
-							World.getInstance().createFroggerRefuge(refuge); // on cree un frogger dans le refuge
+							//World.getInstance().createFroggerRefuge(refuge); // on cree un frogger dans le refuge
 							int s = World.getInstance().getFrog().getScore();
 							World.getInstance().getFrog().setScore(s+100-(int)(lifeTime));
 							lifeTime = 0;
@@ -173,14 +189,21 @@ public class ControllerFrogger {
 						}
 						else {
 							if (refuge.moucheIsHere()) {
+								System.out.println("Refuge atteint avec succès + mouche mangée");
+								win = true;
+								World.getInstance().frogInitPos(true);
+								int s = World.getInstance().getFrog().getScore();
+								World.getInstance().getFrog().setScore(s+100-(int)(lifeTime));
 								World.getInstance().getMouche().hide();
 								World.getInstance().getFrog().setVie(World.getInstance().getFrog().getVie()+1);
-								System.out.print("vie : "+ (World.getInstance().getFrog().getVie()));
+								World.getInstance().speedUp();
+								lifeTime = 0;
 							}
 						}
 					}
 					else {
-						frog.setY(frog.getY()-frog.getDeplacement());
+						if (!refuge.moucheIsHere())
+							frog.setY(frog.getY()-frog.getDeplacement());
 					}
 				}
 			}
@@ -482,4 +505,34 @@ public class ControllerFrogger {
 
 	}
 	
+	public void collisionProjectile(Frogger frog) {
+        for (Projectile Proj : frog.getLesProjectiles()) {
+            for(Route route : World.getInstance().getLesRoutes()) {
+                for (Vehicule Veh : route.getLesVehicules()){
+                	
+                    if (Proj.getRectangle().overlaps(Veh.getRectangle())) {
+                    	System.out.println("ok");
+                    	route.getLesVehicules().removeValue(Veh, true);
+                        frog.getLesProjectiles().removeValue(Proj, true);
+                    }
+    
+                }
+            }
+        }
+	}
+	
+	public boolean nextIsHerbe(Frogger frog) {
+		if (frog.getY() + frog.getDeplacement() >= World.getInstance().getLesRefuges().get(0).getY()) {
+			for(Refuge refuge : World.getInstance().getLesRefuges()) {
+				if ( World.getInstance().getFrog().getX() + (World.getInstance().getFrog().getWidth()/2) < refuge.getX() + refuge.getWidth() ) {
+					if ( World.getInstance().getFrog().getX() + (World.getInstance().getFrog().getWidth()/2) > refuge.getX()) {
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
 }

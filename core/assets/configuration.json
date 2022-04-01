@@ -1,6 +1,17 @@
 {
     "Debug" : {
-        "value" : 0
+        "afficherGrille" : 0,
+        "collisionsVoiture" : 1,
+        "collisionEau" : 1
+    },
+    "MoucheVolante" : {
+    	"x1" : -1
+    	"y1" : -1
+    	"x2" : 10
+    	"y2" : 10
+    	"height" : 1
+    	"width" : 1
+    	"speed" : 2
     },
     "LvlSup" : {
         "percentage" : 30

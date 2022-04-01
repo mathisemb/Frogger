@@ -3,6 +3,8 @@ package vue;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
 
 import model.Refuge;
 import model.Riviere;
@@ -18,7 +20,7 @@ public class GameScreen implements Screen {
 	
 	public GameScreen(MyGdxGame game) {
 		this.game = game;
-		this.debug = new Debug(13,9,50);
+		this.debug = new Debug();
 		this.allOccupied = false;
 	}
 
@@ -38,12 +40,26 @@ public class GameScreen implements Screen {
 	    	this.dispose();
 	    	
 	    	// On supprime les obstacles et les frogger dans les refuges
+	    	
+	    	JsonReader json = new JsonReader();
+	        JsonValue config = json.parse(Gdx.files.internal("configuration.json"));
+	        
+	        JsonValue Route = config.get("Route");
+	        int i = 0;
 	        for(Route route : World.getInstance().getLesRoutes()) {
 	        	route.getLesVehicules().clear();
+	        	route.setSpeed(Route.get(i).getFloat("speed"));
+	        	i++;
 	        }
+	        
+	        JsonValue Riviere = config.get("Riviere");
+	        i = 0;
 	        for(Riviere riviere : World.getInstance().getLesRivieres()) {
+	        	riviere.setSpeed(Riviere.get(i).getFloat("speed"));
 	        	riviere.getLesElements().clear();
-	        }
+	        	i++;
+	        }       
+	        
 			for(Refuge refuge : World.getInstance().getLesRefuges()) {
 				if (refuge.isOccupied()) {
 					refuge.setInside(null);
@@ -84,7 +100,7 @@ public class GameScreen implements Screen {
 	    }
 	    
 		game.batch.end();
-		if (game.debug) debug.afficherDebug();
+		if (Debug.getInstance().afficherGrille) Debug.getInstance().afficherDebug();
 	}
 
 	@Override

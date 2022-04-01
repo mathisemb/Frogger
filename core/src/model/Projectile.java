@@ -15,16 +15,7 @@ public class Projectile extends DynamicGameElement {
 				(float)0.1,
 				frog.getDirection(),
 				"projectile");
-				
-		/*
-		super(  frog.getX(),
-				frog.getY(),
-				World.getInstance().getWidthProjectile(),
-				World.getInstance().getHeightProjectile(),
-				(float)0.1,
-				frog.getDirection(),
-				"projectile");
-				*/
+			
 		
 		this.frog = frog;
 		distance = World.getInstance().getTirDistance();
@@ -39,15 +30,19 @@ public class Projectile extends DynamicGameElement {
 		switch(getDirection()) {
 			case 180 : // vers le haut
 				this.y+=deplacement;
+				this.rectangle.setY(y);
 				break;
 			case 0 : // vers le bas
 				this.y-=deplacement;
+				this.rectangle.setY(y);
 				break;
 			case 90 : // vers la droite
 				this.x+=deplacement;
+				this.rectangle.setX(x);
 				break;
 			case 270 : // vers la gauche
 				this.x-=deplacement;
+				this.rectangle.setX(x);
 				break;
 			default:break;
 		}
